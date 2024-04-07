@@ -1,0 +1,14 @@
+Google Services
+~~~~~~~~~~~~~~~
+Calendar, Docs and Chat API integrations need installation of PHP Composer and Google API client using Composer.
+Installation of the Google Client Library: composer require google/apiclient:^2.0 
+Credentials are saved in file GoogleCalendarCredentials. It must be replaced when account is changed.
+
+* GoogleCalendarApi.php
+Uses Google calendar API. 
+Module can add, list and remove events. 
+
+* GoogleDocsApi.php
+Uses Google Docs API.
+Reports can be exported to Google Docs and shared with another account using email address. Docs will be created on separated subaccount, so you will not see it if you
+simply login to Google Docs. So sharing is needed to view the file anyway.

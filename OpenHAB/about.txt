@@ -1,0 +1,4 @@
+Open HAB is open source home automation software (https://www.openhab.org).
+REST API doc: https://www.openhab.org/docs/configuration/restdocs.html
+The server software must be connected to devices (air condition, lamps and others).
+You can see UI at https://.../basicui/app.

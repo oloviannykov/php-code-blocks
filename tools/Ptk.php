@@ -1,19 +1,23 @@
 <?php
-namespace App\Models\tools;
 
 /**
- * Page Tool Kit
+ * Page Tool Kit for building web-page HTML content directly from PHP code
+ * Can output form field HTML or escaped raw value
+ * Primarily built to use with Bootstrap
  */
 class Ptk
 {
     private static
-    $pagination_interval = 15,
-    $pagination_page_no = 1,
-    $pagination_action = '',
-    $pagination_filter = [],
-    $pagination_controller = '',
-    $pagination_found_qty = 0;
+        $pagination_interval = 15,
+        $pagination_page_no = 1,
+        $pagination_action = '',
+        $pagination_filter = [],
+        $pagination_controller = '',
+        $pagination_found_qty = 0;
 
+    /**
+    * Escapes value
+    */
     public static function val($value, $multiline = false): string
     {
         if (!is_string($value) && !is_numeric($value)) {
@@ -40,6 +44,9 @@ class Ptk
         return "<$name" . ($attr ? ' ' . implode(" ", $attr) : '') . ">" . self::val($body) . "</$name>";
     }
 
+    /**
+    * Returns HTML string with multiple tags
+    */
     public static function mtag($name, $list)
     {
         $result = '';
@@ -170,6 +177,7 @@ class Ptk
             . ($bodyAttrStr ? " $bodyAttrStr" : '')
             . '>' . "\n";
     }
+
     public static function panelStartMinimizable($title, $icon = '', $minimized = true, $bodyClass = '', $bodyAttr = '')
     {
         $miniClass = 'panel-minimizable' . ($minimized ? ' panel-minimized' : '');
@@ -183,6 +191,7 @@ class Ptk
             . ($attrStr ? " $attrStr" : '') . ">\n"
             . '<div class="panel-heading">' . $iconTag . self::val($title) . '</div>' . "\n";
     }
+
     public static function panelBodyStart($classStr = '', $attrStr = '')
     {
         return '<div class="panel-body' . ($classStr ? " $classStr" : '') . '"'
@@ -219,10 +228,12 @@ class Ptk
     {
         return self::$pagination_interval;
     }
+
     public static function paginationGetPage(): int
     {
         return self::$pagination_page_no;
     }
+
     public static function paginationSetFound($qty): void
     {
         self::$pagination_found_qty = (int) $qty;

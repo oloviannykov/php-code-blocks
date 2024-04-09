@@ -2,6 +2,20 @@
 /**
 * Database query builder for MySQL to simplify queries writing and wrap values automaticly
 *
+Example:
+    function update_domain()
+    {
+        $query = (new DBQuery('updates_registry')) //--> FROM 'updates_registry'
+            ->fields(['id', 'name', 'summary']) //--> SELECT `id`, `name`, `summary`
+            ->order_asc('name') //--> ORDER BY `name` ASC
+            ->select(); //--> get the SQL
+        $records = DBModel::fetchAssoc($query); //run the SQL
+        $result = [];
+        foreach($records as $r) {
+            $result[$r['id']] = $r['name'] . ' - ' . $r['summary'];
+        }
+        return $result; //return the key-value pairs list
+    }
 */
 
 class DBQuery

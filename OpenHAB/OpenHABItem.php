@@ -1,21 +1,23 @@
 <?php
+/**
+* Entity of device from OpenHAB JSON API (OpenHAB.php)
+*/
 
 class OpenHABItem
 {
     private
-    $id = 0,
-    $name = false,
-    $type = false,
-    $label = false,
-    $minvalue = 0,
-    $maxvalue = 0,
-    $options = [],
-    $state = false,
-    $state_is_read_only = false,
-    $category = false,
-    $import_date = 0,
-    $system_name = '',
-    $connected_tasks = []; //virtual
+        $id = 0,
+        $name = false,
+        $type = false,
+        $label = false,
+        $minvalue = 0,
+        $maxvalue = 0,
+        $options = [],
+        $state = false,
+        $state_is_read_only = false,
+        $category = false,
+        $import_date = 0,
+        $system_name = '';
 
     const
         FIELD__ID = 'id', //int(11) NOT NULL AUTO_INCREMENT
@@ -29,10 +31,7 @@ class OpenHABItem
         FIELD__STATEISREADONLY = 'state_is_read_only', //tinyint(1) DEFAULT 0
         FIELD__IMPORT_DATE = 'import_date', //varchar(30) NOT NULL
         FIELD__SYSTEM_NAME = 'system_name', //int(11) unsigned
-        FIELD__CATEGORY = 'category', //varchar(30) NOT NULL DEFAULT ''
-
-        VIRTUAL_FIELD__CONNECTED_TASKS = 'connected_tasks'
-    ;
+        FIELD__CATEGORY = 'category'; //varchar(30) NOT NULL DEFAULT ''
 
     public function __construct($data = [])
     {
@@ -94,10 +93,6 @@ class OpenHABItem
     {
         return empty($this->system_name) ? '' : (string) $this->system_name;
     }
-    public function get_connected_tasks()
-    {
-        return empty($this->connected_tasks) ? [] : $this->connected_tasks;
-    }
 
     ////////////////////
 
@@ -125,10 +120,6 @@ class OpenHABItem
     {
         return $this->maxvalue = is_numeric($value) ? $value : 0;
     }
-    public function set_connected_tasks($arrayTaskCodes = [])
-    {
-        $this->connected_tasks = empty($arrayTaskCodes) || !is_array($arrayTaskCodes) ? [] : $arrayTaskCodes;
-    }
     public function set_options($array)
     {
         $this->options = empty($array) || !is_array($array) ? [] : $array;
@@ -153,7 +144,6 @@ class OpenHABItem
             self::FIELD__CATEGORY => 'string',
             self::FIELD__IMPORT_DATE => 'number',
             self::FIELD__SYSTEM_NAME => 'string',
-            self::VIRTUAL_FIELD__CONNECTED_TASKS => 'array',
         ];
     }
 

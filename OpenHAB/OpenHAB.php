@@ -1,26 +1,30 @@
 <?php
+/**
+* Integration with OpenHAB JSON API
+*/
+
+//todo: move it to project init
+define('LOG_PATH', __DIR__ . '/logs');
+//
 
 use Path\To\OpenHABItem;
 use Path\To\DeviceModel;
 
 class OpenHAB
 {
-    const
-        LOG_FILE = '/open_hab',
-        RESPONSE__OK = 'ok',
-        RESPONSE__ACCEPTED = 'accepted',
-        RESPONSE__WRONG_REQUEST = 'wrong_request',
-        RESPONSE__ITEM_NOT_FOUND = 'item_not_found',
-        RESPONSE__UNSUPPORTED_MEDIA_TYPE = 'unsupported_media_type',
-        SWITCHER_STATUS_ON = 'ON',
-        SWITCHER_STATUS_OFF = 'OFF'
-    ;
+    const LOG_FILE = '/open_hab';
+    const RESPONSE__OK = 'ok';
+    const RESPONSE__ACCEPTED = 'accepted';
+    const RESPONSE__WRONG_REQUEST = 'wrong_request';
+    const RESPONSE__ITEM_NOT_FOUND = 'item_not_found';
+    const RESPONSE__UNSUPPORTED_MEDIA_TYPE = 'unsupported_media_type';
+    const SWITCHER_STATUS_ON = 'ON';
+    const SWITCHER_STATUS_OFF = 'OFF';
 
-    private
-    $endpoint = '',
-    $login = '',
-    $password = '',
-    $log_path = '';
+    private $endpoint = '';
+    private $login = '';
+    private $password = '';
+    private $log_path = '';
 
     public function __construct()
     {
@@ -134,7 +138,8 @@ class OpenHAB
         $data = [],
         $accept = 'application/json'
     ): array {
-        $url = $this->endpoint . $method . (empty($path_params) ? '' : '/' . implode('/', $path_params))
+        $url = $this->endpoint . $method
+            . (empty($path_params) ? '' : '/' . implode('/', $path_params))
             . (empty($data) ? '' : '?' . http_build_query($data));
 
         $context = stream_context_create([
@@ -166,7 +171,6 @@ class OpenHAB
         return $result;
     }
 
-
     private function get_auth_header(): string
     {
         return "Authorization: Basic " . base64_encode($this->login . ':' . $this->password);
@@ -175,7 +179,8 @@ class OpenHAB
     //example https://xxx.com/rest/items/ESPX_000123_DHT/state
     private function send_put_request($method, $path_params = [], $message = ''): string
     {
-        $url = $this->endpoint . $method . (empty($path_params) ? '' : '/' . implode('/', $path_params));
+        $url = $this->endpoint . $method
+            . (empty($path_params) ? '' : '/' . implode('/', $path_params));
         $context = stream_context_create([
             'http' => array(
                 'header' => implode("\r\n", [
@@ -210,7 +215,8 @@ class OpenHAB
     private function send_post_request($method, $path_params = [], $message = ''): string
     {
         //$data = json_encode($data, JSON_UNESCAPED_SLASHES);
-        $url = $this->endpoint . $method . (empty($path_params) ? '' : '/' . implode('/', $path_params));
+        $url = $this->endpoint . $method
+            . (empty($path_params) ? '' : '/' . implode('/', $path_params));
         //$context  = $this->get_request_context('POST', $data);
         $context = stream_context_create([
             'http' => array(
@@ -462,15 +468,12 @@ class OpenHAB
         $item = $response['response'];
         $instance = new OpenHABItem(self::get_item_data($item));
         if (empty($instance->get_type())) {
-            errors_collect(__METHOD__, "Empty item type: " . var_export($item, 1));
             return ['error' => 'The item can not be used by system without type'];
         }
         if (empty($instance->get_name())) {
-            errors_collect(__METHOD__, "Empty item name: " . var_export($item, 1));
             return ['error' => 'The item can not be used by system without name'];
         }
         if ($mutableStateOnly && $instance->get_state_is_read_only()) {
-            errors_collect(__METHOD__, "Item is not mutable: " . var_export($item, 1));
             return ['error' => 'Immutable item can not be used'];
         }
 
@@ -604,11 +607,11 @@ class OpenHAB
          *
          */
         if (empty($response['response']['homepage'])) {
-            errors_collect(__METHOD__, "'homepage' not found");
+            //todo: report error "'homepage' not found");
             return [];
         }
         if (empty($response['response']['homepage']['widgets'])) {
-            errors_collect(__METHOD__, "No widgets found");
+            //todo: report error "No widgets found");
             return [];
         }
         $result = [];

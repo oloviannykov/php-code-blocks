@@ -1,13 +1,138 @@
 <?php
-namespace SurenHome\Models\tools;
 
-//from ReturnTypes.php
-use ValueOrError, ValueBoolean, ValueNumber, ValueString, ValueArray;
+define('DEFAULT_LANG', 'en'); //todo: move outside
 
 //from 'translation-for-small-project' directory
 use App\Translations\DateDictionary;
-use App\Translations\DatePickerDictionary;
 use App\Translations\TimeDictionary;
+
+class ValueOrError
+{
+    public $value = NULL;
+    public $trigger = '';
+    public $notFound = false;
+    public $error = false;
+    public $errorText = '';
+    public $errorCode = '';
+
+    const ERR__DB_ERROR = 'db_error';
+
+    public function setValue($value)
+    {
+        $this->value = $value;
+        return $this;
+    }
+
+    public function __invoke($value)
+    {
+        return $this->setValue($value);
+    } //$r = new ValueOrError; $r($value);
+
+    public function trigger($str)
+    {
+        $this->trigger = $str;
+        return $this;
+    }
+
+    public function notFound()
+    {
+        $this->notFound = true;
+        return $this;
+    }
+
+    public function getDump(): string
+    {
+        return implode("; ", array_filter([
+            $this->error ? 'FAIL: ' . $this->errorText . ($this->errorCode === '' ? '' : ' (' . $this->errorCode . ')') : 'SUCCESS',
+            $this->notFound ? 'not found' : false,
+            is_null($this->value) ? false : json_encode($this->value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            $this->error && $this->trigger ? $this->trigger : false,
+        ]));
+    }
+
+    public function __toString()
+    {
+        return $this->getDump();
+    } //echo (new ValueOrError);
+
+    public function dbError($errorText, $trigger = '')
+    {
+        $this->error($errorText, self::ERR__DB_ERROR, $trigger);
+        return $this;
+    }
+
+    public function error($errorText, $errorCode = '', $trigger = '')
+    {
+        $this->error = true;
+        $this->errorText = $errorText;
+        $this->errorCode = $errorCode;
+        if ($trigger) {
+            $this->trigger = $trigger;
+        } else {
+            $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            //$this->trigger = json_encode($bt[0], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+            $class = empty($bt[1]['class']) ? '' : $bt[1]['class'] . '::';
+            $func = empty($bt[1]['function']) ? '' : $bt[1]['function'];
+            $line = empty($bt[0]['line']) ? '' : ':' . $bt[0]['line'];
+            $this->trigger = "$class$func$line";
+        }
+        return $this;
+    }
+}
+
+class ValueArray extends ValueOrError
+{
+    public function notFound()
+    {
+        $this->notFound = true;
+        $this->value = [];
+        return $this;
+    }
+}
+
+class ValueBoolean extends ValueOrError
+{
+    public function setValue($success)
+    {
+        $this->value = !empty($success);
+        return $this;
+    }
+    public function success()
+    {
+        $this->value = true;
+        return $this;
+    }
+}
+
+class ValueNumber extends ValueOrError
+{
+    public function setInteger($n)
+    {
+        $this->value = intval($n);
+        return $this;
+    }
+    public function setFloat($n)
+    {
+        $this->value = floatval($n);
+        return $this;
+    }
+    public function __invoke($value)
+    {
+        if (is_float($value) || is_double($value)) {
+            return $this->setFloat($value);
+        }
+        return $this->setInteger($value);
+    }
+}
+
+class ValueString extends ValueOrError
+{
+    public function setValue($string)
+    {
+        $this->value = (string) $string;
+        return $this;
+    }
+}
 
 class Calendar
 {
@@ -339,11 +464,13 @@ class Calendar
             return [];
         }
         return [$hours, $minutes];
+        //use list($hours, $minutes) = hoursPointParse('15:25')
     }
 
     public static function currentHoursPoint()
     {
         return [intval(date('G')), intval(date('i'))]; //--> [hours, minutes]
+        //use list($hours, $minutes) = currentHoursPoint()
     }
 
     /**
@@ -469,6 +596,7 @@ class Calendar
             $end = mktime(23, 59, 59, date('n', $end), date('j', $end), date('Y', $end));
         }
         return [$start, $end];
+        //use list($start, $end) = date_range_to_datetime_range('2023-02-15', '2024-02-15');
     }
 
     public static function parse_date_period_filter($filter, $lang = '')
@@ -518,6 +646,7 @@ class Calendar
         }
 
         return [$start, $end, ''];
+        //use list($start, $end, $errorText) = parse_date_period_filter([...], 'en');
     }
 
     public static function parse_date_period($start_date, $end_date, $as_string = true, $max_days_difference = 100)
@@ -529,7 +658,6 @@ class Calendar
         }
         if ($as_string) {
             if (!is_string($start_date)) {
-                errors_collect(__METHOD__, ['start date is not string' => $start_date]);
                 return [0, 0, DateDictionary::$wrong_start_date];
             }
             if (empty($start_date)) {
@@ -537,13 +665,11 @@ class Calendar
             } else {
                 $start = @strtotime($start_date);
                 if ($start === false) {
-                    errors_collect(__METHOD__, ['wrong start date format' => $start_date]);
                     return [0, 0, DateDictionary::$wrong_start_date];
                 }
             }
 
             if (!is_string($end_date)) {
-                errors_collect(__METHOD__, ['end date is not string' => $end_date]);
                 return [0, 0, DateDictionary::$wrong_end_date];
             }
             if (empty($end_date)) {
@@ -551,15 +677,12 @@ class Calendar
             } else {
                 $end = @strtotime($end_date);
                 if ($end === false) {
-                    errors_collect(__METHOD__, ['wrong end date format' => $end_date]);
                     return [0, 0, DateDictionary::$wrong_end_date];
                 }
             }
         } elseif ($start_date && (!is_numeric($start_date) || $start_date < 0)) {
-            errors_collect(__METHOD__, ['wrong start date format' => $start_date]);
             return [0, 0, DateDictionary::$wrong_start_date];
         } elseif ($end_date && (!is_numeric($end_date) || $end_date < 0)) {
-            errors_collect(__METHOD__, ['wrong end date format' => $end_date]);
             return [0, 0, DateDictionary::$wrong_end_date];
         } else {
             $start = (int) $start_date;
@@ -577,6 +700,7 @@ class Calendar
         }
 
         return [$start, $end, ''];
+        //use list($start, $end, $errorText) = parse_date_period(...);
     }
 
     public static function get_date_range_by_month_index($month_index)
@@ -612,10 +736,11 @@ class Calendar
      */
     public static function dates_diff_in_days($date_start, $date_end, $include_1st_day = true)
     {
-        return (new \DateTime())->setTimestamp($date_start)
-            ->diff(
-                (new \DateTime())->setTimestamp($date_end)
-            )->days + ($include_1st_day ? 1 : 0);
+        return (new \DateTime())
+            ->setTimestamp($date_start)
+            ->diff((new \DateTime())->setTimestamp($date_end))
+            ->days
+            + ($include_1st_day ? 1 : 0);
     }
 
     public static function parse_date_string($date)
@@ -628,19 +753,5 @@ class Calendar
             return 0;
         }
         return mktime(0, 0, 0, date('n', $timestamp), date('j', $timestamp), date('Y', $timestamp));
-    }
-
-    public static function get_js_datepicker_translations()
-    {
-        DatePickerDictionary::load();
-        $sunday1st = self::DATEPICKER_START_WEEK_FROM_SUNDAY;
-        return 'var dptranslations = {'
-            . 'days: ' . json_encode(DatePickerdictionary::weekdays_list($sunday1st)) . ','
-            . 'daysShort: ' . json_encode(DatePickerdictionary::weekdays_list_3s($sunday1st)) . ','
-            . 'daysMin: ' . json_encode(DatePickerdictionary::weekdays_list_2s($sunday1st)) . ','
-            . 'months: ' . json_encode(DatePickerdictionary::months_list()) . ','
-            . 'monthsShort: ' . json_encode(DatePickerdictionary::months_list_3s()) . ','
-            . 'today:"' . DatePickerdictionary::$today . '",'
-            . 'clear:"' . DatePickerdictionary::$clear . '"};';
     }
 }

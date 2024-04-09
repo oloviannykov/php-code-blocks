@@ -7,6 +7,8 @@
 * - creating/reading/updating text/json files
 * - handling file uploading/downloading process
 * - bulk files removing
+* - lock file
+* - get/set file modification time
 */
 
 // -- dependencies START --
@@ -551,5 +553,36 @@ class FilesHelper
             }
         }
         return $r->setValue($removed);
+    }
+
+    /**
+    * Creates lock file and writes current process ID to the file
+    */
+    public static function lock_file_create(string $path): bool
+    {
+        return (bool)@(file_put_contents($path, getmygid(), LOCK_EX) && chmod($path, 0777));
+        //return @mkdir($path) && chmod($path, 0777);
+        //mkdir is atomic, so the lock is atomic: In a single step, you lock or you don't.
+        //It's faster than flock(), flock requires several calls to the FS and depends on the system.
+    }
+
+    public static function lock_file_remove(string $path): bool
+    {
+        return (bool)@unlink($path);//@rmdir($path);
+    }
+
+    public static function get_file_modification_time(string $path): ?int
+    {        
+        clearstatcache();
+        return @filemtime($path);
+    }
+
+    public static function set_file_modification_time(string $path, int $time): bool
+    {        
+        if(! @touch($path, $time)) {
+            //errors_collect(__METHOD__, "can not touch '$path': " . var_export(error_get_last(), 1));
+            return false;
+        }
+        return true;
     }
 }

@@ -1,10 +1,8 @@
 <?php
-use SurenHome\Models\PagesModel;
-use SurenHome\Models\PageData;
-use SurenHome\Models\entities\ReportPageMaker;
+use ReportPageMaker;
 
-use SurenHome\Translations\EmployeeDictionary;
-use SurenHome\Translations\WorkDictionary;
+use App\Translations\EmployeeDictionary;
+use App\Translations\WorkDictionary;
 
 EmployeeDictionary::load();
 WorkDictionary::load();
@@ -38,7 +36,7 @@ foreach ($records as $record) {
     ]));
 
     if ($record->get_start_working_date()) {
-        $report->paragraph(WorkDictionary::$works_from . ' ' . PagesModel::date($record->get_start_working_date()));
+        $report->paragraph(WorkDictionary::$works_from . ' ' . format_date($record->get_start_working_date()));
     } else {
         $report->paragraph(WorkDictionary::$has_not_started_working_yet);
     }
@@ -51,7 +49,7 @@ foreach ($records as $record) {
 
 $report->paragraph('---------------');
 $report->paragraph(EmployeeDictionary::$fired_employees, 1, true, 8);
-foreach (PageData::$records as $record) {
+foreach ($records as $record) {
     if (!$record->get_end_working_date()) {
         continue;
     }

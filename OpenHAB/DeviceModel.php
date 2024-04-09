@@ -1,11 +1,12 @@
 <?php
+/**
+* OpenHAB API Integration usage example - loading settings and filtering devices list
+*/
 
-use ValueBoolean; //look at ReturnTypes.php
-use Path\To\OpenHABImportedDevices;
+//todo: import ReturnTypes.php
+//todo: import translations/DeviceDictionary.php
 use Path\To\OpenHAB;
 use Path\To\OpenHABItem;
-
-//use App\Translations\DeviceDictionary;
 
 class DeviceModel
 {
@@ -79,7 +80,7 @@ class DeviceModel
         if (empty($list['error'])) {
             return $list;
         }
-        errors_collect(__METHOD__, ['getSitemaps error' => $list['error']]);
+        //todo: report error 'getSitemaps error: ' . $list['error']
         return [];
     }
 
@@ -88,7 +89,7 @@ class DeviceModel
         DeviceDictionary::load();
         $r = new ValueBoolean;
         if(empty($sitemap) || !is_string($sitemap)) {
-            errors_collect(__METHOD__, ['wrong sitemap name' => $sitemap]);
+            //todo: report error 'wrong sitemap name: ' . $sitemap
             return $r->error(DeviceDictionary::$wrong_sitemap_name, 'wrong_sitemap_name');
         }
         $settings = self::get_openhab_settings();
@@ -130,16 +131,11 @@ class DeviceModel
         ];
     }
 
-    public static function imported_device_id_domain(): array
-    {
-        return []; //OpenHABImportedDevices::device_id_domain();
-    }
-
     public static function get_filtered_list($filter, $task_ids_by_device_id = []): array
     {
         $oh = new OpenHAB();
         if (!$oh->can_connect()) {
-            errors_collect('DeviceModel.get_filtered_list', 'Trying to get OpenHAB items without connection settings');
+            //todo: report error 'Trying to get OpenHAB items without connection settings'
             return [];
         }
         $items = [];

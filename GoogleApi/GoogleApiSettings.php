@@ -1,8 +1,24 @@
 <?php
 use \Google_Client;
-use App\SettingsRegistry; //todo: implement
+/**
+* This class provides methods for:
+* - uploading/validating/reading/backuping/restoring Google credentials file
+* - getting Google client object by the credentials file
+*/
 
-//todo: create constant STORAGE_PATH
+//todo: move constant to app configuration
+define('STORAGE_PATH', __DIR__ . '/../storage');
+
+//todo: implement settings_get_by_key()
+function settings_get_by_key(string $key): string
+{
+    $settings = [
+        self::MAPS_APIKEY_SETTINGS_KEY => ['key' => 'qwerty123456789'],
+        self::CALENDAR_SETTING_KEY => ['...' => 'jgjgjgjgjhghgjg'],
+        self::PLACES_API_KEY => ['key' => 'ytrruuytutut'],
+    ];
+    return $settings[$key] ?? '';
+}
 
 class GoogleApiSettings
 {
@@ -46,43 +62,30 @@ class GoogleApiSettings
         ACCESS_TYPE__CALENDAR_SUBSCRIPTION = 'calendar_subscription',
         ACCESS_TYPE__PLACES_LIST_UPDATE = 'places_list_update';
 
-    private static
-    $credentials = [],
-    $log = [],
-    $client_by_scope = [];
+    private static $credentials = [];
+    private static $log = [];
+    private static $client_by_scope = [];
 
     /*Maps Embed API
     Place an interactive map or Street View panorama on your site with a simple HTTP request
     using the Maps Embed API. Set the Embed API URL as the src attribute of an iframe to easily
     embed the map in your webpage or blog.
     https://developers.google.com/maps/documentation/embed/get-started?hl=en_US
-     *      */
-    public static function update_maps_api_key($key)
-    {
-        return (bool) SettingsRegistry::set_by_key(
-            self::MAPS_APIKEY_SETTINGS_KEY,
-            ['key' => $key]
-        );
-    }
+     */
     public static function get_maps_api_key()
     {
-        $data = SettingsRegistry::get_by_key(self::MAPS_APIKEY_SETTINGS_KEY);
+        $data = settings_get_by_key(self::MAPS_APIKEY_SETTINGS_KEY);
         return empty($data['key']) ? '' : $data['key'];
     }
 
     public static function get_calendar_settings()
     {
-        return SettingsRegistry::get_by_key(self::CALENDAR_SETTING_KEY);
+        return settings_get_by_key(self::CALENDAR_SETTING_KEY);
     }
 
-    public static function update_places_api_key($key)
-    {
-        return SettingsRegistry::set_by_key(self::PLACES_API_KEY, ['key' => $key])
-            ? true : false;
-    }
     public static function get_places_api_key()
     {
-        $data = SettingsRegistry::get_by_key(self::PLACES_API_KEY);
+        $data = settings_get_by_key(self::PLACES_API_KEY);
         return empty($data['key']) ? '' : $data['key'];
     }
 
@@ -196,16 +199,16 @@ class GoogleApiSettings
 
     public static function translate_error($error)
     {
-        //IntegrationsDictionary::load();
+        //todo: implement translation
         switch ($error) {
             case GoogleApiSettings::ERROR__FILE_NOT_FOUND:
-                return 'file_not_found';//IntegrationsDictionary::$file_not_found;
+                return 'file_not_found';
             case GoogleApiSettings::ERROR__BACKUP_NOT_FOUND:
-                return 'backup_not_found';//IntegrationsDictionary::$backup_not_found;
+                return 'backup_not_found';
             case GoogleApiSettings::ERROR__WRONG_FILE_FORMAT:
-                return 'wrong_file_format';//IntegrationsDictionary::$wrong_file_format;
+                return 'wrong_file_format';
             case GoogleApiSettings::ERROR__SERVICE_ACCOUNT_REQUIRED:
-                return 'service_account_required';//IntegrationsDictionary::$service_account_required;
+                return 'service_account_required';
         }
         return $error;
     }

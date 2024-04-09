@@ -1,31 +1,70 @@
 <?php
-namespace App\Integrations;
+/**
+* Almost full Telegram API integration
+* To create Telegram bot read this: https://core.telegram.org/bots/features#creating-a-new-bot
+* 
+*/
 
-//todo: create constant LOG_PATH
+/* useful tips:
 
+    //API key validation
+    preg_match('/(\d+):[\w\-]+/', $api_key, $matches);
+    if (!isset($matches[1])) {
+        throw new TelegramException('Invalid API KEY defined!');
+    }
+    $this->bot_id  = (int) $matches[1];
+
+    //temporary stream open
+    $temp_stream_handle = fopen('php://temp', 'wb+');
+
+    //temporary stream end
+    if (is_resource(self::$debug_log_temp_stream_handle)) {
+        rewind($temp_stream_handle);
+        $stream_contents = stream_get_contents($temp_stream_handle);
+        self::debug(sprintf($message, $stream_contents));
+        fclose($temp_stream_handle);
+        $temp_stream_handle = null;
+    }
+*/
+
+//todo: move it to project init block
+define('LOG_PATH', __DIR__ . '/logs');
+
+//todo: move Value... classes outside
 class ValueOrError
 {
-    public $value = NULL, $trigger = '', $notFound = false, $error = false, $errorText = '', $errorCode = '';
+    public $value = NULL;
+    public $trigger = '';
+    public $notFound = false;
+    public $error = false;
+    public $errorText = '';
+    public $errorCode = '';
+
     const ERR__DB_ERROR = 'db_error';
+
     public function setValue($value)
     {
         $this->value = $value;
         return $this;
     }
+
     public function __invoke($value)
     {
         return $this->setValue($value);
     } //$r = new ValueOrError; $r($value);
+
     public function trigger($str)
     {
         $this->trigger = $str;
         return $this;
     }
+
     public function notFound()
     {
         $this->notFound = true;
         return $this;
     }
+
     public function getDump(): string
     {
         return implode("; ", array_filter([
@@ -35,15 +74,18 @@ class ValueOrError
             $this->error && $this->trigger ? $this->trigger : false,
         ]));
     }
+
     public function __toString()
     {
         return $this->getDump();
     } //echo (new ValueOrError);
+
     public function dbError($errorText, $trigger = '')
     {
         $this->error($errorText, self::ERR__DB_ERROR, $trigger);
         return $this;
     }
+
     public function error($errorText, $errorCode = '', $trigger = '')
     {
         $this->error = true;
@@ -62,6 +104,7 @@ class ValueOrError
         return $this;
     }
 }
+
 class ValueArray extends ValueOrError
 {
     public function notFound()
@@ -71,6 +114,7 @@ class ValueArray extends ValueOrError
         return $this;
     }
 }
+
 class ValueBoolean extends ValueOrError
 {
     public function setValue($success)
@@ -84,6 +128,7 @@ class ValueBoolean extends ValueOrError
         return $this;
     }
 }
+
 class ValueNumber extends ValueOrError
 {
     public function setInteger($n)
@@ -91,11 +136,13 @@ class ValueNumber extends ValueOrError
         $this->value = intval($n);
         return $this;
     }
+
     public function setFloat($n)
     {
         $this->value = floatval($n);
         return $this;
     }
+
     public function __invoke($value)
     {
         if (is_float($value) || is_double($value)) {
@@ -104,6 +151,7 @@ class ValueNumber extends ValueOrError
         return $this->setInteger($value);
     }
 }
+
 class ValueString extends ValueOrError
 {
     public function setValue($string)
@@ -130,36 +178,15 @@ class TelegramBot
     const MY_ID_BOT_LINK = 'https://t.me/myidbot';
 
     private
-    $admin_chat_id = '',
-    $endpoint = '',
-    $endpoint_censored = '',
-    $curl = null,
-    $log_path = '',
-    $api_token = '',
-    $bot_name = '',
-    $callback_key = '',
-    $callback_url = '';
-
-    /* fragments from telegramm-bot-core:
-     *
-    preg_match('/(\d+):[\w\-]+/', $api_key, $matches);
-    if (!isset($matches[1])) {
-        throw new TelegramException('Invalid API KEY defined!');
-    }
-    $this->bot_id  = (int) $matches[1];
-     *
-    //temp stream open
-    $temp_stream_handle = fopen('php://temp', 'wb+');
-     *
-    //temp stream end
-    if (is_resource(self::$debug_log_temp_stream_handle)) {
-        rewind($temp_stream_handle);
-        $stream_contents = stream_get_contents($temp_stream_handle);
-        self::debug(sprintf($message, $stream_contents));
-        fclose($temp_stream_handle);
-        $temp_stream_handle = null;
-    }
-     *  */
+        $admin_chat_id = '',
+        $endpoint = '',
+        $endpoint_censored = '',
+        $curl = null,
+        $log_path = '',
+        $api_token = '',
+        $bot_name = '',
+        $callback_key = '',
+        $callback_url = '';
 
     public function __construct()
     {
@@ -866,7 +893,7 @@ class TelegramBot
                 from:{id:69..., is_bot:false, first_name:"Xxx", last_name:"xxx", language_code:"en"},
                 message:{
                  message_id:1639,
-                 from:{id:67.., is_bot:true, first_name:"suren_home", username:"suren_home_bot"},
+                 from:{id:67.., is_bot:true, first_name:"xxx", username:"sxxx_bot"},
                  chat:{"id":57.., first_name:"Gena", last_name:"xxx", type:"private"},
                  date:1608834554,
                  text:"Test buttons callback",

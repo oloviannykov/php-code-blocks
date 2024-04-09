@@ -1,24 +1,42 @@
 <?php
-namespace App\Models\tools;
+/**
+* SVG image builder
+*
+* Usage example:
+$svg = (new SVGImage(200, 200))
+        ->border('black', 2)
+        ->fill('none')->circle(100, 100, 50)
+        ->fill('yellow', 0.9)->ellipse(120, 100, 50, 70)
+        ->fill('blue')->text(10, 70, 'JHGJGJGIUhkhkjh', 30)
+        ->border('red')->line(0, 0, 200, 200)
+        ->border('green', 2)->line(0, 10, 190, 200)
+        ->border('grey', 3)->line(0, 20, 180, 200)
+    ->get_svg(); //this returns SVG content
+//putting content into file, so you can display it on front using <img src=".../test.svg" />
+file_put_contents(__DIR__ . '/test.svg', $svg);
+*
+* getSvgAsHtml() returns <img src="..." /> tag with SVG embedded inside
+*
+* Used materials:
+* https://www.w3schools.com/graphics/svg_examples.asp
+* https://commons.wikimedia.org/wiki/SVG_examples
+* https://developer.mozilla.org/ru/docs/Web/SVG/Tutorial/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D1%8B%D0%B5_%D0%A4%D0%B8%D0%B3%D1%83%D1%80%D1%8B
+*/
 
 class SVGImage
 {
-    //see https://www.w3schools.com/graphics/svg_examples.asp
-    //more examples: https://commons.wikimedia.org/wiki/SVG_examples
-    //https://developer.mozilla.org/ru/docs/Web/SVG/Tutorial/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D1%8B%D0%B5_%D0%A4%D0%B8%D0%B3%D1%83%D1%80%D1%8B
-
     private
-    $width = 0,
-    $height = 0,
-    $stroke = "black",
-    $stroke_width = "1",
-    $stroke_opacity = "1",
-    $fill = "none",
-    $fill_opacity = "1",
-    $current_path = '',
-    $content = "",
-    $group_started = false,
-    $group_attributes = [];
+        $width = 0,
+        $height = 0,
+        $stroke = "black",
+        $stroke_width = "1",
+        $stroke_opacity = "1",
+        $fill = "none",
+        $fill_opacity = "1",
+        $current_path = '',
+        $content = "",
+        $group_started = false,
+        $group_attributes = [];
 
     /* example:
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -367,7 +385,7 @@ class SVGImage
      * абсолютные позиции x и y будут приниматься за отрицательные координаты,
      * отрицательные относительные значения x будут перемещаться влево,
      * а отрицательные относительные значения y будут двигаться вверх.
-     * *  */
+     */
 
     public function rectangle($x, $y, $w, $h, $rounded_x = null, $rounded_y = null)
     {
@@ -521,15 +539,3 @@ class SVGImage
     }
 
 }
-
-/*/test
-$svg = (new SVGImage(200, 200))->border('black', 2)
-        ->fill('none')->circle(100, 100, 50)
-        ->fill('yellow', 0.9)->ellipse(120, 100, 50, 70)
-        ->fill('blue')->text(10, 70, 'JHGJGJGIUhkhkjh', 30)
-        ->border('red')->line(0, 0, 200, 200)
-        ->border('green', 2)->line(0, 10, 190, 200)
-        ->border('grey', 3)->line(0, 20, 180, 200)
-    ->get_svg();
-file_put_contents(__DIR__ . '/test.svg', $svg);
-*/

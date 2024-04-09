@@ -1,14 +1,16 @@
 <?php
 use ReportPageMaker;
 
-$template_path = '...'; //todo: set path to report template from parameters
+//todo: set the variables from parameters
+$template_path = '...';
+$report_title = '...';
 ?>
 <!doctype html>
 <html lang="en" class="no-js">
 
 <head>
     <meta charset="utf-8">
-    <title>Querty report</title>
+    <title><?= $report_title ?></title>
     <style>
         @page {
             size: A4;

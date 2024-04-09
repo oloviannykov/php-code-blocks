@@ -1,19 +1,21 @@
 <?php
-namespace App\Models\tools;
+/**
+* Class can be used to output <select> tah directly from PHP
+* Made for Bootstrap Front-End
+*/
 
 class SelectorField
 {
     private
-    $name = '',
-    $options = [],
-    $selected = '',
-    $required = false,
-    $id = '',
-    $class_name = '',
-    $title = '',
-    $all_marker = '...',
-    $no_option_all = false
-    ;
+        $name = '',
+        $options = [],
+        $selected = '',
+        $required = false,
+        $id = '',
+        $class_name = '',
+        $title = '',
+        $all_marker = '...',
+        $no_option_all = false;
 
     public function name($name)
     {

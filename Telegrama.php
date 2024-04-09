@@ -1,4 +1,14 @@
 <?php
+/**
+* Simple Telegram API integration for sending error reports to project admin
+* Made for small projects
+*
+* API token you get after creating bot in BotFather Telegram channal
+* invitation link looks like t.me/(your-bot-name-here)_bot
+* For a description of the Bot API look at https://core.telegram.org/bots/api
+* use @myidbot command /getid to get chat id
+*/
+
 class Telegrama
 {
     const BASE_BOT_URL = 'https://api.telegram.org/bot';
@@ -9,15 +19,11 @@ class Telegrama
     const FORBIDDEN_ERROR_CODE = 403;
 
     private
-    $error = '',
-    $api_token = 'put-your-api-token-here',
-    $admin_chat_id = 'put-your-chat-id-here',
-    $endpoint = '';
-    //$bot_name = 'your-bot-name-here';
-    //invite link - t.me/(your-bot-name-here)_bot
-    //For a description of the Bot API, see this page: https://core.telegram.org/bots/api
-
-    //use @myidbot command /getid to get chat id
+        $error = '',
+        $api_token = 'put-your-api-token-here',
+        $admin_chat_id = 'put-your-chat-id-here',
+        $endpoint = '';
+        //$bot_name = 'your-bot-name-here';
 
     public function __construct()
     {
@@ -174,9 +180,8 @@ class Telegrama
         return $this->send_post_request('sendMessage', $args);
     }
 
-    public function getChat(
-        $chat_id
-    ) {
+    public function getChat($chat_id)
+    {
         if (empty($chat_id)) {
             return ['error' => 'invalid chat id ' . var_export($chat_id, 1)];
         }

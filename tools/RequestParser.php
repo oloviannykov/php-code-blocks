@@ -1,13 +1,50 @@
 <?php
-namespace App\Models\tools;
+
+//todo: replace errors_collect(...) with your own error reporting function
+//todo: move this functions outside:
+
+function get_language_domain()
+{
+    return [
+        'en' => 'English',
+        'es' => 'Spanish',
+        'ru' => 'Russian',
+    ];
+}
+
+function started_from_console()
+{
+    $has_argv = ! empty($_SERVER['argv']);
+    $has_host = ! empty($_SERVER['HTTP_HOST']);
+    $has_stdin = defined('STDIN');
+    return $has_stdin && $has_argv && ! $has_host;
+    /* You can make your own condition:
+    console: array (
+        'php_sapi' => 'cli', //from php_sapi_name()
+        'REMOTE_ADDR' => NULL, //from $_SERVER['REMOTE_ADDR']
+        'argv' => [0 => 'index.php'], 'argc' => 1,
+        'host' => NULL, 'uri' => NULL,
+        'STDIN is defined' => true,
+      ),
+      web browser: array (
+        'php_sapi' => 'apache2handler',
+        'REMOTE_ADDR' => '::1',
+        'argv' => NULL, 'argc' => NULL,
+        'host' => 'localhost', 'uri' => '/test/...',
+        'STDIN is defined' => false,
+      )
+     */
+}
+
+//============
 
 use App\Models\tools\CSRFTool;
 
 class RequestParser
 {
     public static
-    $preserveHeaders = false,
-    $lastHeader = '';
+        $preserveHeaders = false,
+        $lastHeader = '';
 
     //USER AGENT
 
@@ -179,15 +216,16 @@ class RequestParser
         }
         return $_SERVER['HTTP_HOST'];
     }
+
     public static function is_https_mode(): bool
     {
         if (isset($_SERVER['HTTPS'])) {
             return !empty($_SERVER['HTTPS']);
         }
         return isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https';
-        //http://10.0.1.127:8002
-        //http://181.36.232.221
-        //http://tamarindo6.hopto.org
+        //http://10.0.1.127:8123
+        //http://181.0.111.222
+        //http://xxx.qwerty.org
         //echo 'SERVER: <pre>' . var_export($_SERVER, 1) . '</pre>';
         /*
             return (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
@@ -198,10 +236,12 @@ class RequestParser
               || (isset($_SERVER["HTTP_X_FORWARDED_SSL"]) && 'on' === $_SERVER["HTTP_X_FORWARDED_SSL"]);
         */
     }
+
     public static function get_protocol(): string
     {
         return self::is_https_mode() ? 'https' : 'http';
     }
+
     public static function get_url(): string
     {
         if (empty(self::get_host())) {
@@ -210,6 +250,7 @@ class RequestParser
         $uri = empty($_SERVER['REQUEST_URI']) ? '' : $_SERVER['REQUEST_URI'];
         return self::get_protocol() . '://' . self::get_host() . $uri;
     }
+
     public static function get_uri(): string
     {
         return empty($_SERVER['REQUEST_URI']) ? '' : $_SERVER['REQUEST_URI'];
@@ -303,6 +344,7 @@ class RequestParser
         return getallheaders();
         //todo: censor and filter headers
     }
+
     public static function set_response_code($code, $description = ''): void
     {
         self::$lastHeader = "HTTP/1.0 $code $description";
@@ -311,30 +353,37 @@ class RequestParser
         }
         self::response_code_log($code);
     }
+
     public static function set_response_success(): void
     {
         self::set_response_code(200, "Success");
     }
+
     public static function set_response_bad_request(): void
     {
         self::set_response_code(400, "Bad Request");
     }
+
     public static function set_response_unauthorized(): void
     {
         self::set_response_code(401, "Unauthorized");
     }
+
     public static function set_response_forbidden(): void
     {
         self::set_response_code(403, "Forbidden");
     }
+
     public static function set_response_not_found(): void
     {
         self::set_response_code(404, "Not Found");
     }
+
     public static function set_response_server_error(): void
     {
         self::set_response_code(500, "Internal Server Error");
     }
+
     public static function set_response_location($link): void
     {
         self::$lastHeader = "Location: $link";
@@ -343,6 +392,7 @@ class RequestParser
         }
         self::redirection_log($link);
     }
+
     public static function redirection_log($location = '')
     {
         static $x = '';
@@ -352,6 +402,7 @@ class RequestParser
             return $x;
         }
     }
+
     public static function response_code_log($code = '')
     {
         static $x = '';
@@ -423,7 +474,7 @@ class RequestParser
         //session_cache_limiter('private_no_expire');
     }
 
-    //REPORT
+    //REPORT FOR LOG
 
     public static function get_report($include_session = false, $include_headers = false): string
     {

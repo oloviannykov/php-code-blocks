@@ -1,11 +1,10 @@
 <?php
-use SurenHome\Models\entities\ReportPageMaker;
-use SurenHome\Models\PageData;
+use ReportPageMaker;
 
-use SurenHome\Translations\AdminPageDictionary;
-use SurenHome\Translations\EmployeeDictionary;
-use SurenHome\Translations\DateDictionary;
-use SurenHome\Translations\FieldDictionary;
+use App\Translations\AdminPageDictionary;
+use App\Translations\EmployeeDictionary;
+use App\Translations\DateDictionary;
+use App\Translations\FieldDictionary;
 
 AdminPageDictionary::load();
 EmployeeDictionary::load();

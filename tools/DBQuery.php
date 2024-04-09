@@ -1,5 +1,8 @@
 <?php
-namespace App\Models\tools;
+/**
+* Database query builder for MySQL to simplify queries writing and wrap values automaticly
+*
+*/
 
 class DBQuery
 {
@@ -9,27 +12,27 @@ class DBQuery
         TYPE_DECIMAL = 'decimal';
 
     private
-    $table = '', //FROM ..., INSERT INTO ..., UPDATE ...
-    $table_alias = 'a',
-    $fields = [], //SELECT ... / SET ...
-    $field_funcs = [],
-    $use_and = true,
-    $block_started = false,
-    $not_in_next_condition = false,
-    $conditions = [], //[cond1, [cond2, cond3]] --> cond1 AND (cond2 OR cond3)
-    $values = [],
-    $join_type = 'JOIN',
-    $join_table = '',
-    $join_table_alias = 'b',
-    $join_relations = [],
-    $joined_fields = [],
-    $limit = 0,
-    $offset = 0,
-    $order_fields = [],
-    $group_fields = [],
-    $errors = [],
-    $last_query = '',
-    $can_delete_without_conditions = false;
+        $table = '', //FROM ..., INSERT INTO ..., UPDATE ...
+        $table_alias = 'a',
+        $fields = [], //SELECT ... / SET ...
+        $field_funcs = [],
+        $use_and = true,
+        $block_started = false,
+        $not_in_next_condition = false,
+        $conditions = [], //[cond1, [cond2, cond3]] --> cond1 AND (cond2 OR cond3)
+        $values = [],
+        $join_type = 'JOIN',
+        $join_table = '',
+        $join_table_alias = 'b',
+        $join_relations = [],
+        $joined_fields = [],
+        $limit = 0,
+        $offset = 0,
+        $order_fields = [],
+        $group_fields = [],
+        $errors = [],
+        $last_query = '',
+        $can_delete_without_conditions = false;
 
     public function __construct($table = '')
     {
@@ -838,7 +841,6 @@ class DBQuery
 
     private function wrapValuesList($array, $type): string
     {
-        //$type comes from self::getTableFields
         if (mb_strpos($type, '(')) {
             $type = strtolower(mb_substr($type, 0, mb_strpos($type, '(')));
         }

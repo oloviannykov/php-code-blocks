@@ -1,5 +1,10 @@
 <?php
 
+/**
+* Integration with egaug.es API to track solar panel power producing and selling to the power provider
+* Made for project in Dominican Republic (Casa De Campo)
+*/
+
 /*read https://www.egauge.net/media/support/docs/egauge-xml-api.pdf
 Unix time-stamps use U32 format, while integer register values use S64 format. Any decimal values use the IEEE-754
 64-bit floating point format.
@@ -22,16 +27,16 @@ class EgaugeApiClient
     ;
 
     private
-    $endpoint = '',
-    $host = '',
-    $referer = '',
-    $used_price = 0,
-    $generated_price = 0,
-    $time_zone_code = 'LST4',
-    $time_point = 0,
-    $last_response = '',
-    $log = [],
-    $last_error = '';
+        $endpoint = '',
+        $host = '',
+        $referer = '',
+        $used_price = 0,
+        $generated_price = 0,
+        $time_zone_code = 'LST4',
+        $time_point = 0,
+        $last_response = '',
+        $log = [],
+        $last_error = '';
 
     public function __construct($settings = [])
     {

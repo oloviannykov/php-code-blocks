@@ -7,7 +7,7 @@
 * - creating/reading/updating text/json files
 * - handling file uploading/downloading process
 * - bulk files removing
-* - lock file
+* - lock file create, remove and check if process exists by ID
 * - get/set file modification time
 */
 
@@ -564,6 +564,18 @@ class FilesHelper
         //return @mkdir($path) && chmod($path, 0777);
         //mkdir is atomic, so the lock is atomic: In a single step, you lock or you don't.
         //It's faster than flock(), flock requires several calls to the FS and depends on the system.
+    }
+
+    public static function lock_file_process_exists($path): bool
+    {
+        if (!file_exists($path)) {
+            return false;
+        }
+        $pid = file_get_contents($path); //read pid wrote by lock_file_create()
+        if (!function_exists('posix_kill')) {
+            return true;
+        }
+        return $pid && posix_kill($pid, 0);
     }
 
     public static function lock_file_remove(string $path): bool
